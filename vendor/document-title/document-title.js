@@ -38,7 +38,9 @@ var mergedActionPropertyName = (function() {
 
 routeProps[mergedActionPropertyName] = {
   collectTitleTokens: async function(tokens) {
+    console.log(1);
     var titleToken = await get(this, 'titleToken');
+    console.log(2);
     if (typeof titleToken === 'function') {
       titleToken = titleToken.call(this, get(this, 'currentModel'));
     }
@@ -95,7 +97,7 @@ Ember.Router.reopen({
     this.send('collectTitleTokens', []);
   }),
 
-  setTitle: function(title) {
+  setTitle: async function(title) {
     var container = getOwner ? getOwner(this) : this.container;
     var renderer = container.lookup('renderer:-dom');
     var domForAppWithGlimmer2 = container.lookup('service:-document');
