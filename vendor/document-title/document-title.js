@@ -37,11 +37,11 @@ var mergedActionPropertyName = (function() {
 })();
 
 routeProps[mergedActionPropertyName] = {
-  collectTitleTokens: async function(tokens) {
+  collectTitleTokens: function(tokens) {
     console.log('collectTitleTokens');
     console.log('collectTitleTokens - tokens', tokens);
     debugger;
-    var titleToken = await get(this, 'titleToken');
+    var titleToken = get(this, 'titleToken');
     console.log(2);
     if (typeof titleToken === 'function') {
       titleToken = titleToken.call(this, get(this, 'currentModel'));
@@ -101,7 +101,7 @@ Ember.Router.reopen({
     this.send('collectTitleTokens', []);
   }),
 
-  setTitle: async function(title) {
+  setTitle: function(title) {
     console.log('setTitle');
     console.log('setTitle -> title', title);
     debbuger;
