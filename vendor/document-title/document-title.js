@@ -40,7 +40,7 @@ routeProps[mergedActionPropertyName] = {
   collectTitleTokens: function(tokens) {
     console.log('collectTitleTokens');
     console.log('collectTitleTokens - tokens', tokens);
-    debugger;
+    // debugger;
     var titleToken = get(this, 'titleToken');
     console.log(2);
     if (typeof titleToken === 'function') {
@@ -97,14 +97,14 @@ Ember.Route.reopen(routeProps);
 Ember.Router.reopen({
   updateTitle: Ember.on('didTransition', function() {
     console.log('updateTitle');
-    debugger;
+    // debugger;
     this.send('collectTitleTokens', []);
   }),
 
   setTitle: function(title) {
     console.log('setTitle');
     console.log('setTitle -> title', title);
-    debugger;
+    // debugger;
 
     var container = getOwner ? getOwner(this) : this.container;
     var renderer = container.lookup('renderer:-dom');
