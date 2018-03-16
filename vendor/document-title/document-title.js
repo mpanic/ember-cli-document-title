@@ -104,7 +104,7 @@ Ember.Router.reopen({
   setTitle: function(title) {
     console.log('setTitle');
     console.log('setTitle -> title', title);
-    debbuger;
+    debugger;
 
     var container = getOwner ? getOwner(this) : this.container;
     var renderer = container.lookup('renderer:-dom');
