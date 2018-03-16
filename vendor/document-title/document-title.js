@@ -38,7 +38,9 @@ var mergedActionPropertyName = (function() {
 
 routeProps[mergedActionPropertyName] = {
   collectTitleTokens: async function(tokens) {
-    console.log(1);
+    console.log('collectTitleTokens');
+    console.log('collectTitleTokens - tokens', tokens);
+    debugger;
     var titleToken = await get(this, 'titleToken');
     console.log(2);
     if (typeof titleToken === 'function') {
@@ -77,11 +79,11 @@ routeProps[mergedActionPropertyName] = {
         self.router.setTitle(finalTitle);
       });
 
-      // Tell FastBoot about our async code
-      var fastboot = lookupFastBoot(this);
-      if (fastboot && fastboot.isFastBoot) {
-        fastboot.deferRendering(completion);
-      }
+      // // Tell FastBoot about our async code
+      // var fastboot = lookupFastBoot(this);
+      // if (fastboot && fastboot.isFastBoot) {
+      //   fastboot.deferRendering(completion);
+      // }
 
     } else {
       // Continue bubbling.
@@ -94,10 +96,16 @@ Ember.Route.reopen(routeProps);
 
 Ember.Router.reopen({
   updateTitle: Ember.on('didTransition', function() {
+    console.log('updateTitle');
+    debugger;
     this.send('collectTitleTokens', []);
   }),
 
   setTitle: async function(title) {
+    console.log('setTitle');
+    console.log('setTitle -> title', title);
+    debbuger;
+
     var container = getOwner ? getOwner(this) : this.container;
     var renderer = container.lookup('renderer:-dom');
     var domForAppWithGlimmer2 = container.lookup('service:-document');
