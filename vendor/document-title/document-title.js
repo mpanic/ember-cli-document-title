@@ -38,11 +38,56 @@ var mergedActionPropertyName = (function() {
 
 routeProps[mergedActionPropertyName] = {
   collectTitleTokens: function(tokens) {
-    console.log('collectTitleTokens');
-    console.log('collectTitleTokens - tokens', tokens);
-    // debugger;
     var titleToken = get(this, 'titleToken');
-    console.log(2);
+    if (typeof titleToken === 'function') {
+      titleToken = titleToken.call(this, get(this, 'currentModel'));
+    }
+
+    if (Ember.isArray(titleToken)) {
+      tokens.unshift.apply(tokens, titleToken);
+    } else if (titleToken) {
+      tokens.unshift(titleToken);
+    }
+
+    // If `title` exists, it signals the end of the
+    // token-collection, and the title is decided right here.
+    var title = get(this, 'title');
+    if (title) {
+      var self = this;
+
+      // Wrap in promise in case some tokens are asynchronous.
+      var completion = Promise.resolve()
+      .then(function() {
+        if (typeof title === 'function') {
+          // Wait for all tokens to resolve. It resolves immediately if all tokens are plain values (not promises).
+          return Promise.all(tokens)
+            .then(function(resolvedTokens) {
+              return title.call(self, resolvedTokens);
+            });
+        } else {
+          // Tokens aren't even considered... a string
+          // title just sledgehammer overwrites any children tokens.
+          return title;
+        }
+      })
+      .then(function(finalTitle) {
+        // Stubbable fn that sets document.title
+        self.router.setTitle(finalTitle);
+      });
+
+      // // Tell FastBoot about our async code
+      // var fastboot = lookupFastBoot(this);
+      // if (fastboot && fastboot.isFastBoot) {
+      //   fastboot.deferRendering(completion);
+      // }
+
+    } else {
+      // Continue bubbling.
+      return true;
+    }
+  },
+  collectDescriptionTokens: function(tokens) {
+    var titleToken = get(this, 'titleToken');
     if (typeof titleToken === 'function') {
       titleToken = titleToken.call(this, get(this, 'currentModel'));
     }
@@ -96,16 +141,25 @@ Ember.Route.reopen(routeProps);
 
 Ember.Router.reopen({
   updateTitle: Ember.on('didTransition', function() {
-    console.log('updateTitle');
-    // debugger;
     this.send('collectTitleTokens', []);
+    this.send('collectDescriptionTokens', []);
   }),
 
   setTitle: function(title) {
-    console.log('setTitle');
-    console.log('setTitle -> title', title);
-    // debugger;
+    var container = getOwner ? getOwner(this) : this.container;
+    var renderer = container.lookup('renderer:-dom');
+    var domForAppWithGlimmer2 = container.lookup('service:-document');
 
+    if (renderer && renderer._dom) {
+      Ember.set(renderer, '_dom.document.title', title);
+    } else if (domForAppWithGlimmer2) {
+      // Glimmer 2 has a different renderer
+      Ember.set(domForAppWithGlimmer2, 'title', title);
+    } else {
+      document.title = title;
+    }
+  }
+  setDescription: function(description) {
     var container = getOwner ? getOwner(this) : this.container;
     var renderer = container.lookup('renderer:-dom');
     var domForAppWithGlimmer2 = container.lookup('service:-document');
